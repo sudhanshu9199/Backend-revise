@@ -1,48 +1,48 @@
-require('dotenv').config();
-const express = require('express');
-const connectDB = require('./src/db/db.js')
+require("dotenv").config();
+const express = require("express");
+const connectToDB = require("./src/db/db.js");
+const noteModel = require("./src/models/noteModel.js");
 const app = express();
-app.use(express.json())
-let notes = [];
-app.get('/', (req, res) => {
-    res.send('You entered!')
-});
-app.post('/note/add', (req, res) => {
-    console.log(req.body);
-    notes.push(req.body);
-    res.json({
-        message: "Added Successfully!",
-        notes
-    })
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  console.log("You entered only!");
+  res.send("You entered only!");
 });
 
-app.get('/note', (req, res) => {
-    res.send(notes);
+app.post("/note/create", async (req, res) => {
+  const { title, content } = req.body;
+  console.log("title:", title, "\ncontent:", content);
+  await noteModel.create({ title, content });
+  res.send("note created!");
 });
-app.patch('/note/update/:index', (req, res) => {
-    const index = req.params.index;
-    const { title } = req.body;
 
-    notes[index].title = title;
+app.delete("/note/delete/:id", async (req, res) => {
+  const noteId = req.params.id;
 
-    res.json({
-        message: `title updated!`
-    })
+  await noteModel.findByIdAndDelete(noteId);
+  res.send("note deleted!");
+});
 
-})
+app.patch("/note/update/:id", async (req, res) => {
+  const noteId = req.params.id;
 
-app.delete('/note/delete/:index', (req, res) => {
-    const index = req.params.index;
+  const { title } = req.body;
 
-    delete notes[index];
+  await noteModel.findByIdAndUpdate(
+    {
+      _id: noteId,
+    },
+    { title }
+  );
 
-    res.json({
-        message: `${index}no. data is deleted!`
-    })
-})
+  res.json({
+    message: "note title updated!",
+  });
+});
 
-connectDB();
+connectToDB();
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
-    console.log(`http://localhost:${PORT}`);
-})
+  console.log(`http://localhost${PORT}`);
+});
