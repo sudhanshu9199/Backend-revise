@@ -10,6 +10,13 @@ app.get("/", (req, res) => {
   res.send("You entered only!");
 });
 
+app.get('/note', (req, res) => {
+    res.json({
+        message: "all datas",
+        data: noteModel.find()
+    })
+})
+
 app.post("/note/create", async (req, res) => {
   const { title, content } = req.body;
   console.log("title:", title, "\ncontent:", content);
